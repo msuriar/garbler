@@ -17,14 +17,31 @@
 package garbler
 
 import (
+	"fmt"
 	"os/exec"
+	"time"
 )
 
-func runCheck(c string) (success bool) {
 
+func runCheck(c string, cmd_to time.Duration) (success bool) {
 	cmd := exec.Command("sh", "-c", c)
+	done := make(chan error, 1)
+	timeout := time.After(cmd_to)
 
-	cmd.Run()
+	go func() {
+		done <- cmd.Run()
+	}()
 
-	return cmd.ProcessState.Success()
+	select {
+	case <- timeout:
+		if err := cmd.Process.Kill(); err != nil {
+			fmt.Print("Failed to kill:", err)
+		}
+		fmt.Print("Timed out. Returning false.")
+		<- done
+		return false
+	case err:= <- done:
+		fmt.Print("Completed. Returning.")
+		return err == nil
+	}
 }

@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-func StartService(cmd, prefix string, advInt time.Duration) {
+func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 	fmt.Println("Command:", cmd)
 	succ,fail,healthy := 0,0,false
 
@@ -29,7 +29,7 @@ func StartService(cmd, prefix string, advInt time.Duration) {
 	unhealthy_rm := newUnhealthyRipMsg(prefix)
 
 	for {
-		if runCheck(cmd) {
+		if runCheck(cmd, cmd_to) {
 			succ += 1
 			fail = 0
 			fmt.Println("SUCCESS!")

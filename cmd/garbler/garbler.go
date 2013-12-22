@@ -26,8 +26,8 @@ import (
 
 var (
 	prefix,cmd string
-	advInt time.Duration
-	successes, failures, cmd_timout int
+	advInt, cmd_timeout time.Duration
+	successes, failures int
 )
 
 func init() {
@@ -39,8 +39,8 @@ func init() {
 	successes before garbler considers the service healthy.`)
 	flag.IntVar(&failures, "failures", 3, `Number of consecutive
 	failures before garbler considers the service unhealthy.`)
-	flag.IntVar(&cmd_timout, "timeout", 30, `Time in seconds before garbler
-	considers the healthcheck command to have failed, and kills it.`)
+	flag.DurationVar(&cmd_timeout, "timeout", 1 * time.Second,
+	`Timeout for healthcheck command.`)
 }
 
 func main() {
@@ -58,7 +58,12 @@ func main() {
 		err = true
 	}
 
+	if advInt <= cmd_timeout {
+		fmt.Println("advInt is less than timeout. This is a bad idea.")
+		err = true
+	}
+
 	if err { os.Exit(1) }
-	
-	garbler.StartService(cmd, prefix, advInt)
+
+	garbler.StartService(cmd, prefix, advInt, cmd_timeout)
 }
