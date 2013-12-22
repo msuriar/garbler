@@ -17,7 +17,6 @@
 package garbler
 
 import (
-	"fmt"
 	"os/exec"
 	"time"
 )
@@ -35,13 +34,11 @@ func runCheck(c string, cmd_to time.Duration) (success bool) {
 	select {
 	case <- timeout:
 		if err := cmd.Process.Kill(); err != nil {
-			fmt.Print("Failed to kill:", err)
+			// TODO: Implement proper logging + expvar.
 		}
-		fmt.Print("Timed out. Returning false.")
 		<- done
 		return false
 	case err:= <- done:
-		fmt.Print("Completed. Returning.")
 		return err == nil
 	}
 }

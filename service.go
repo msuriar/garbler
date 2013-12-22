@@ -17,12 +17,10 @@
 package garbler
 
 import (
-	"fmt"
 	"time"
 )
 
 func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
-	fmt.Println("Command:", cmd)
 	succ,fail,healthy := 0,0,false
 
 	healthy_rm := newHealthyRipMsg(prefix)
@@ -32,11 +30,9 @@ func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 		if runCheck(cmd, cmd_to) {
 			succ += 1
 			fail = 0
-			fmt.Println("SUCCESS!")
 		} else {
 			succ = 0
 			fail += 1
-			fmt.Println("FAILURE!")
 		}
 
 		if succ >= 3 {
