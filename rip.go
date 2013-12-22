@@ -46,7 +46,7 @@ type ripMsg struct {
 func packPrefix(prefix string) (network, subnet_mask uint32) {
 	ip, ipnet, err := net.ParseCIDR(prefix)
 	if err != nil {
-		log.Fatalf("Error while parsing prefix %s: %s", prefix, err)
+		log.Fatalln("Error while parsing prefix %s: %s", prefix, err)
 	}
 	ip = ip.To4()
 	mask := net.IP(ipnet.Mask)
@@ -82,28 +82,28 @@ func newUnhealthyRipMsg(prefix string) (rm *ripMsg) {
 func sendRipMsg(rm *ripMsg) {
 	serverAddr, err := net.ResolveUDPAddr("udp", "224.0.0.9:520")
 	if err != nil {
-		log.Fatal("Failure!")
+		log.Fatalln("Failed to parse RIP all routers address:")
 	}
 	conn, err := net.DialUDP("udp", nil, serverAddr)
 	if err != nil {
-		log.Fatal("Failure!", err)
+		log.Fatalln("Failed to Dial to RIP all routers address:", err)
 	}
 
 	buf := new(bytes.Buffer)
 
 	err = binary.Write(buf, binary.BigEndian, rm)
 	if err != nil {
-		log.Fatal("Failure!", err)
+		log.Fatalln("Failed to write RIP message to buffer:", err)
 	}
 
 	_, err = conn.Write(buf.Bytes())
 	if err != nil {
-		log.Fatal("Failure!", err)
+		log.Fatalln("Failed to send RIP packet:", err)
 	}
 
 	err = conn.Close()
 	if err != nil {
-		log.Fatalf("Failed to close socket: %s", err)
+		log.Fatalln("Failed to close socket:", err)
 	}
 }
 

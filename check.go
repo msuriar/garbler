@@ -17,12 +17,13 @@
 package garbler
 
 import (
+	"log"
 	"os/exec"
 	"time"
 )
 
 
-func runCheck(c string, cmd_to time.Duration) (success bool) {
+func runCheck(c string, cmd_to time.Duration) (result bool) {
 	cmd := exec.Command("sh", "-c", c)
 	done := make(chan error, 1)
 	timeout := time.After(cmd_to)
@@ -33,12 +34,17 @@ func runCheck(c string, cmd_to time.Duration) (success bool) {
 
 	select {
 	case <- timeout:
+		log.Println("Command timed out.")
 		if err := cmd.Process.Kill(); err != nil {
-			// TODO: Implement proper logging + expvar.
+			log.Println("Failed to kill command after timeout.")
+		} else {
+			log.Println("Command killed successfully after timeout.")
 		}
 		<- done
 		return false
 	case err:= <- done:
-		return err == nil
+		result := err == nil
+		log.Println("Command completed. Succeeded: ", result)
+		return result
 	}
 }

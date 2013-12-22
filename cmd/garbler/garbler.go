@@ -18,9 +18,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"github.com/msuriar/garbler"
-	"os"
 	"time"
 )
 
@@ -49,21 +48,21 @@ func main() {
 	err := false
 
 	if prefix == "" {
-		fmt.Println("prefix is a required flag.")
+		log.Println("prefix is a required flag.")
 		err = true
 	}
 
 	if cmd == "" {
-		fmt.Println("cmd is a required flag.")
+		log.Println("cmd is a required flag.")
 		err = true
 	}
 
 	if advInt <= cmd_timeout {
-		fmt.Println("advInt is less than timeout. This is a bad idea.")
+		log.Println("advInt is less than timeout. This is a bad idea.")
 		err = true
 	}
 
-	if err { os.Exit(1) }
+	if err { log.Fatal("One or more errors encountered, exiting.") }
 
 	garbler.StartService(cmd, prefix, advInt, cmd_timeout)
 }

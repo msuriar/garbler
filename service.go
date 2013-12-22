@@ -17,10 +17,13 @@
 package garbler
 
 import (
+	"log"
 	"time"
 )
 
 func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
+	log.Println("Health check command:", cmd)
+	log.Println("Prefix:", prefix)
 	succ,fail,healthy := 0,0,false
 
 	healthy_rm := newHealthyRipMsg(prefix)
@@ -36,10 +39,12 @@ func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 		}
 
 		if succ >= 3 {
+			log.Println("3 consequetive successes. Healthy!")
 			healthy = true
 		}
 
 		if fail >= 3 {
+			log.Println("3 consequetive failues. Unhealthy. :(")
 			healthy = false
 		}
 
