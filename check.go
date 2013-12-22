@@ -18,16 +18,11 @@ package garbler
 
 import (
 	"os/exec"
-	"strings"
 )
 
 func runCheck(c string) (success bool) {
-	s := strings.Fields(c)
 
-	arg0 := s[0]
-	args := s[1:]
-
-	cmd := exec.Command(arg0, args...)
+	cmd := exec.Command("sh", "-c", c)
 
 	cmd.Run()
 
