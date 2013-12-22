@@ -33,14 +33,14 @@ var (
 func init() {
 	flag.StringVar(&prefix, "prefix", "", "Prefix to advertise.")
 	flag.StringVar(&cmd, "cmd", "", "Healthcheck command to run.")
-	flag.DurationVar(&advInt, "advInt", 30 * time.Second, `Interval between
-	updates.`)
-	flag.IntVar(&successes, "successes", 3, `Number of consecutive
-	successes before garbler considers the service healthy.`)
-	flag.IntVar(&failures, "failures", 3, `Number of consecutive
-	failures before garbler considers the service unhealthy.`)
+	flag.DurationVar(&advInt, "advInt", 30 * time.Second,
+	"Interval between updates.")
+	flag.IntVar(&successes, "successes", 3,
+	"Number of consecutive successes before service healthy.")
+	flag.IntVar(&failures, "failures", 3,
+	"Number of consecutive failures before service unhealthy.")
 	flag.DurationVar(&cmd_timeout, "timeout", 1 * time.Second,
-	`Timeout for healthcheck command.`)
+	"Timeout for healthcheck command.")
 }
 
 func main() {
