@@ -30,7 +30,7 @@ const (
 )
 
 type Prober interface {
-	Probe() func (ch chan health) ()
+	Probe(ch chan health) ()
 }
 
 type Command struct {
@@ -39,8 +39,8 @@ type Command struct {
 	successes, failures int
 }
 
-func (c *Command) Probe() func(ch chan health) (){
-	return func(ch chan health) () {
+func (c *Command) Probe(ch chan health) (){
+	go func() {
 		ticker := time.Tick(c.interval)
 		successes, failures := 0, 0
 		for _ = range ticker {
@@ -66,7 +66,7 @@ func (c *Command) Probe() func(ch chan health) (){
 				log.Printf("%d consecutive failures. Dead.  :(\n", failures)
 			}
 		}
-	}
+	}()
 }
 
 func runCheck(c string, cmd_to time.Duration) (result bool) {

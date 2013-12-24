@@ -29,9 +29,8 @@ func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 	unhealthy_rm := newUnhealthyRipMsg(prefix)
 
 	c := Command{cmd, advInt, cmd_to, 3, 3}
-	p := c.Probe()
 	ch := make(chan health, 1)
-	go p(ch)
+	go c.Probe(ch)
 
 	ticker := time.Tick(advInt)
 	status := <-ch
