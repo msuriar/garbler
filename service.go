@@ -24,40 +24,29 @@ import (
 func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 	log.Println("Health check command:", cmd)
 	log.Println("Prefix:", prefix)
-	succ,fail,status := 0,0,Unknown
 
 	healthy_rm := newHealthyRipMsg(prefix)
 	unhealthy_rm := newUnhealthyRipMsg(prefix)
 
+	c := Command{cmd, advInt, cmd_to, 3, 3}
+	p := c.Probe()
+	ch := make(chan health, 1)
+	go p(ch)
+
+	ticker := time.Tick(advInt)
+	status := <-ch
 	for {
-		if runCheck(cmd, cmd_to) {
-			succ += 1
-			fail = 0
-		} else {
-			succ = 0
-			fail += 1
+		select {
+		case status = <- ch:
+			log.Println("Received update.")
+		case <- ticker:
+			switch status {
+			case Healthy:
+				sendRipMsg(healthy_rm)
+			case Unhealthy:
+				sendRipMsg(unhealthy_rm)
+			}
 		}
 
-		if succ >= 3 {
-			log.Println("3 consecutive successes. Healthy!")
-			status = Healthy
-		}
-
-		if fail >= 3 {
-			log.Println("3 consecutive failures. Unhealthy. :(")
-			status = Unhealthy
-		}
-
-		switch status {
-		case Healthy:
-			sendRipMsg(healthy_rm)
-		case Unhealthy:
-			sendRipMsg(unhealthy_rm)
-		case Unknown:
-		default:
-			log.Fatalln("Unknown status value:", status)
-		}
-
-		time.Sleep(advInt)
 	}
 }

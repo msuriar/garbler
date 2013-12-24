@@ -26,8 +26,48 @@ type health byte
 const (
 	Healthy health = iota
 	Unhealthy
-	Unknown
+	Dead
 )
+
+type Prober interface {
+	Probe() func (ch chan health) ()
+}
+
+type Command struct {
+	cmd string
+	interval, timeout time.Duration
+	successes, failures int
+}
+
+func (c *Command) Probe() func(ch chan health) (){
+	return func(ch chan health) () {
+		ticker := time.Tick(c.interval)
+		successes, failures := 0, 0
+		for _ = range ticker {
+			b := runCheck(c.cmd, c.timeout)
+
+			if b {
+				failures = 0
+				successes++
+			} else {
+				successes = 0
+				failures++
+			}
+
+			switch {
+			case successes == c.successes:
+				ch <- Healthy
+				log.Printf("%d consecutive successes.  Healthy!\n", successes)
+			case failures == c.failures:
+				ch <- Unhealthy
+				log.Printf("%d consecutive failures. Unhealthy.  :(\n", failures)
+			case failures == 2*c.failures:
+				ch <- Dead
+				log.Printf("%d consecutive failures. Dead.  :(\n", failures)
+			}
+		}
+	}
+}
 
 func runCheck(c string, cmd_to time.Duration) (result bool) {
 	cmd := exec.Command("sh", "-c", c)
