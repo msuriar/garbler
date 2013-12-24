@@ -6,6 +6,8 @@
 - Enable multiple healthchecks(?)
   - Should this be done outside of garbler in a shell script?
 - Implement configuration file.
+- Implement expvar for monitoring.
+  - Later, probably want to export a map of stuff per service.
 
 ## Copyright and license
 
