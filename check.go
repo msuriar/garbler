@@ -22,6 +22,12 @@ import (
 	"time"
 )
 
+type health byte
+const (
+	Healthy health = iota
+	Unhealthy
+	Unknown
+)
 
 func runCheck(c string, cmd_to time.Duration) (result bool) {
 	cmd := exec.Command("sh", "-c", c)
