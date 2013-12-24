@@ -1,9 +1,11 @@
 # Garbler
 
 ## TODO
-- Handle command timeouts correctly.
-- Make concurrent.
+- Extract Service into an interface.
 - Implement BGP speaker.
+- Enable multiple healthchecks(?)
+  - Should this be done outside of garbler in a shell script?
+- Implement configuration file.
 
 ## Copyright and license
 
