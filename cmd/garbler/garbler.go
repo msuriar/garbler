@@ -64,5 +64,6 @@ func main() {
 
 	if err { log.Fatal("One or more errors encountered, exiting.") }
 
-	garbler.StartService(cmd, prefix, advInt, cmd_timeout)
+	svc := garbler.NewService(cmd, prefix, advInt, cmd_timeout)
+	svc.Start()
 }

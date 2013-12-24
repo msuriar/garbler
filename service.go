@@ -21,18 +21,33 @@ import (
 	"time"
 )
 
-func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
-	log.Println("Health check command:", cmd)
-	log.Println("Prefix:", prefix)
+type Service struct {
+	name string
+	a Announcer
+	p Prober
+	prefix string
+}
 
-	c := Command{cmd, advInt, cmd_to, 3, 3}
-	a := RIPAnnouncer{advInt, prefix, 1, 16}
+func (svc *Service) Start() {
+	log.Println("Health check command:", svc.p.GetCheck())
+	log.Println("Prefix:", svc.prefix)
+
 	ch := make(chan health, 1)
 	errch := make(chan error, 1)
-	a.Announce(ch)
-	c.Probe(ch, errch)
+
+	svc.a.Announce(ch)
+	svc.p.Probe(ch, errch)
 
 	for err := range errch {
 		log.Println("Probe error received:", err)
 	}
+}
+
+func NewService(cmd, prefix string, advInt, cmd_to time.Duration) (svc Service) {
+	svc = *new(Service)
+	svc.prefix = prefix
+	svc.p = &Command{cmd, advInt, cmd_to, 3, 3}
+	svc.a = &RIPAnnouncer{advInt, prefix, 1, 16}
+
+	return
 }

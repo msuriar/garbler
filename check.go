@@ -30,13 +30,18 @@ const (
 )
 
 type Prober interface {
-	Probe(ch chan health) ()
+	Probe(ch chan health, errch chan error) ()
+	GetCheck() (chk string)
 }
 
 type Command struct {
 	cmd string
 	interval, timeout time.Duration
 	successes, failures int
+}
+
+func (c *Command) GetCheck() (chk string) {
+	return c.cmd
 }
 
 func (c *Command) Probe(ch chan health, errch chan error) (){
