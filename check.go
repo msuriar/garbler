@@ -39,12 +39,16 @@ type Command struct {
 	successes, failures int
 }
 
-func (c *Command) Probe(ch chan health) (){
+func (c *Command) Probe(ch chan health, errch chan error) (){
 	go func() {
 		ticker := time.Tick(c.interval)
 		successes, failures := 0, 0
 		for _ = range ticker {
-			b := runCheck(c.cmd, c.timeout)
+			b, err := runCheck(c.cmd, c.timeout)
+
+			if err != nil {
+				errch <- err
+			}
 
 			if b {
 				failures = 0
@@ -69,7 +73,7 @@ func (c *Command) Probe(ch chan health) (){
 	}()
 }
 
-func runCheck(c string, cmd_to time.Duration) (result bool) {
+func runCheck(c string, cmd_to time.Duration) (result bool, err error) {
 	cmd := exec.Command("sh", "-c", c)
 	done := make(chan error, 1)
 	timeout := time.After(cmd_to)
@@ -81,16 +85,17 @@ func runCheck(c string, cmd_to time.Duration) (result bool) {
 	select {
 	case <- timeout:
 		log.Println("Command timed out.")
-		if err := cmd.Process.Kill(); err != nil {
+		err := cmd.Process.Kill()
+		if err != nil {
 			log.Println("Failed to kill command after timeout.")
 		} else {
 			log.Println("Command killed successfully after timeout.")
 		}
 		<- done
-		return false
+		return false, err
 	case err:= <- done:
 		result := err == nil
 		log.Println("Command completed. Succeeded: ", result)
-		return result
+		return result, err
 	}
 }

@@ -25,27 +25,14 @@ func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 	log.Println("Health check command:", cmd)
 	log.Println("Prefix:", prefix)
 
-	healthy_rm := newHealthyRipMsg(prefix)
-	unhealthy_rm := newUnhealthyRipMsg(prefix)
-
 	c := Command{cmd, advInt, cmd_to, 3, 3}
+	a := RIPAnnouncer{advInt, prefix, 1, 16}
 	ch := make(chan health, 1)
-	go c.Probe(ch)
+	errch := make(chan error, 1)
+	a.Announce(ch)
+	c.Probe(ch, errch)
 
-	ticker := time.Tick(advInt)
-	status := <-ch
-	for {
-		select {
-		case status = <- ch:
-			log.Println("Received update.")
-		case <- ticker:
-			switch status {
-			case Healthy:
-				sendRipMsg(healthy_rm)
-			case Unhealthy:
-				sendRipMsg(unhealthy_rm)
-			}
-		}
-
+	for err := range errch {
+		log.Println("Probe error received:", err)
 	}
 }
