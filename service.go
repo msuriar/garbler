@@ -39,12 +39,12 @@ func StartService(cmd, prefix string, advInt, cmd_to time.Duration) {
 		}
 
 		if succ >= 3 {
-			log.Println("3 consequetive successes. Healthy!")
+			log.Println("3 consecutive successes. Healthy!")
 			healthy = true
 		}
 
 		if fail >= 3 {
-			log.Println("3 consequetive failues. Unhealthy. :(")
+			log.Println("3 consecutive failures. Unhealthy. :(")
 			healthy = false
 		}
 
